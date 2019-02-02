@@ -12,7 +12,7 @@ CHARS = list(CHARS_STR)
 def spawn(survivor, offspring, chance):
     for i in range(len(offspring)):
         offspring[i] = survivor[i]
-        experiment = random.randint(1, 100)
+        experiment = random.random()
         if experiment <= chance:
             offspring[i] = random.choice(CHARS)
 
@@ -27,7 +27,7 @@ def match_score(target, offspring):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Richard Dawkin's Famous Weasel Program", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--offsprings', type=int, help='Total number of offsprings', default=100)
-    parser.add_argument('--chance', type=int, help='Chance in percent that a mutation occurs in a copied character', default=5)
+    parser.add_argument('--chance', type=float, help='Chance in percent that a mutation occurs in a copied character', default=5.0)
     parser.add_argument('--target', type=str, help='Target string (only use chars A-Z and space)', default="METHINKS IT IS LIKE A WEASEL")
     args = parser.parse_args()
 
@@ -37,11 +37,12 @@ if __name__ == "__main__":
     the_survivor = [random.choice(CHARS) for _ in range(target_len)]
     offsprings = [[' ' for _ in range(target_len)] for _ in range(args.offsprings)]
     generation = 0
+    chance = args.chance / 100.0
     while match_score(target, the_survivor) < target_len:
         max_score = -1
         max_score_i = -1
         for i in range(args.offsprings):
-            spawn(the_survivor, offsprings[i], args.chance)
+            spawn(the_survivor, offsprings[i], chance)
             the_score = match_score(target, offsprings[i])
             if the_score > max_score:
                 max_score = the_score
