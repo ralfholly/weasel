@@ -1,45 +1,51 @@
 #!/usr/bin/env python3
 
+# pylint:disable=invalid-name
+
+import argparse
 import random
 
-TARGET_STR = "METHINKS IT IS LIKE A WEASEL"
 CHARS_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
-TARGET = list(TARGET_STR)
 CHARS = list(CHARS_STR)
-TARGET_LEN = len(TARGET)
-
-OFFSPRINGS_COUNT = 100
-MUTATION_CHANCE = 5
 
 
-def spawn(survivor, offspring):
+def spawn(survivor, offspring, chance):
     for i in range(len(offspring)):
         offspring[i] = survivor[i]
         experiment = random.randint(1, 100)
-        if experiment <= MUTATION_CHANCE:
+        if experiment <= chance:
             offspring[i] = random.choice(CHARS)
 
 
-def match_score(offspring):
+def match_score(target, offspring):
     score = 0
     for i in range(len(offspring)):
-        score += TARGET[i] == offspring[i]
+        score += target[i] == offspring[i]
     return score
 
 
 if __name__ == "__main__":
-    the_survivor = [random.choice(CHARS) for _ in range(TARGET_LEN)]
-    offsprings = [[ ' ' for _ in range(TARGET_LEN)] for _ in range(OFFSPRINGS_COUNT)]
+    parser = argparse.ArgumentParser(description="Richard Dawkin's Famous Weasel Program", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--offsprings', type=int, help='Total number of offsprings', default=100)
+    parser.add_argument('--chance', type=int, help='Chance in percent that a mutation occurs in a copied character', default=5)
+    parser.add_argument('--target', type=str, help='Target string (only use chars A-Z and space)', default="METHINKS IT IS LIKE A WEASEL")
+    args = parser.parse_args()
+
+    target_len = len(args.target)
+    target = list(args.target.upper())
+
+    the_survivor = [random.choice(CHARS) for _ in range(target_len)]
+    offsprings = [[' ' for _ in range(target_len)] for _ in range(args.offsprings)]
     generation = 0
-    while match_score(the_survivor) < TARGET_LEN:
+    while match_score(target, the_survivor) < target_len:
         max_score = -1
         max_score_i = -1
-        for i in range(OFFSPRINGS_COUNT):
-            spawn(the_survivor, offsprings[i])
-            the_score = match_score(offsprings[i])
+        for i in range(args.offsprings):
+            spawn(the_survivor, offsprings[i], args.chance)
+            the_score = match_score(target, offsprings[i])
             if the_score > max_score:
                 max_score = the_score
                 max_score_i = i
         the_survivor = offsprings[max_score_i].copy()
         generation += 1
-        print("Gen:%d score:%d %s" % (generation, max_score, "".join(the_survivor)))
+        print("Gen:%d score:%d/%d %s" % (generation, max_score, target_len, "".join(the_survivor)))
