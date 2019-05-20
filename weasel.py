@@ -4,6 +4,7 @@
 
 import argparse
 import random
+import sys
 
 CHARS_STR = "ABCDEFGHIJKLMNOPQRSTUVWXYZ "
 CHARS = list(CHARS_STR)
@@ -24,6 +25,13 @@ def match_score(target, offspring):
     return score
 
 
+def check_target(target):
+    for c in target:
+        if c not in CHARS:
+            print("Invalid character '%c' encountered. Only use letters 'A' - 'Z'." % c)
+            sys.exit(1)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Richard Dawkin's Famous Weasel Program", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--offsprings', type=int, help='Total number of offsprings', default=100)
@@ -33,6 +41,7 @@ if __name__ == "__main__":
 
     target_len = len(args.target)
     target = list(args.target.upper())
+    check_target(target)
 
     the_survivor = [random.choice(CHARS) for _ in range(target_len)]
     offsprings = [[' ' for _ in range(target_len)] for _ in range(args.offsprings)]
